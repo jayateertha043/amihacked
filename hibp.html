@@ -1,0 +1,69 @@
+
+<!DOCTYPE html>
+<html>
+<body>
+<style>
+.attention {
+color: red;
+}
+.breachIntro {
+font-size: 16px;
+}
+</style>
+<h1><font color=green>AMIHACKED</font></h1>
+<p class="breachIntro">Check if your email address is in a known data breach:</p>
+<form id="checkBreaches" name="checkBreaches">
+<label for="Email">Email address:</label>
+<input id="checkEmail" type="text" name="Email" value="" placeholder="Email address" required>
+<input type="submit" name="submit" value="Check It!" onclick="loadDoc();return false;">
+<p><a href="#" onclick='reloadMe();'>Refresh Page / Search Again</a></p>
+</form>
+<div id="breachInfo"></div>
+<script>
+function loadDoc() {
+  var xhttp = new XMLHttpRequest();
+  var url =  "https://haveibeenpwned.com/api/v2/breachedaccount/";
+  
+    var email = document.getElementById("checkEmail").value;
+    var checkUserURL = url + email;
+  xhttp.onreadystatechange = function() {
+    if (document.getElementById("checkEmail").value == "") {
+	document.getElementById("breachInfo").innerHTML = "<h4><p>Enter valid E-mail address</p></h4>";  
+	  }
+    else if (xhttp.readyState == 4 && xhttp.status == 200) {
+      writeData(xhttp.responseText);
+    }
+    else if (xhttp.readyState == 4 && xhttp.status == 404){
+    document.getElementById("breachInfo").innerHTML = "<h4><p>No data returned for  <span class=\"attention\">\"" + email + ".\"</span> congrats!!! It appears you have no known associated breaches with this account.</p></h4>";
+    }
+  };
+  xhttp.open("GET", checkUserURL, true);
+  xhttp.send();
+}
+function writeData(response) {
+var arr = JSON.parse(response);
+var i;
+var email = document.getElementById("checkEmail").value;
+var out = "<h4><span class=\"attention\">Unfortunately, it looks like \"" + email + "\" has been breached. </span>Please see the details below:</h4>" + "<div class=\"breachEntries\">";
+for(i = 0; i < arr.length; i++) {
+        out += "<div class=\"breachEntry\" id=\"breachEntry" + i + "\"><div class=\"breachDomain\"><strong>Domain of Breach:&nbsp;</strong>" + arr[i].Name +
+        "&nbsp;(<a href=\"http://" + arr[i].Domain + "\" target=\"_blank\"><strong>http://" + arr[i].Domain + "</a></strong>):&nbsp;" +
+        "</div><div class=\"breachDesc\">" +
+        arr[i].Description +
+        "</div><div class=\"breachItems\"><strong>Breached Items:&nbsp;</strong>" +
+        arr[i].DataClasses +
+        "</div><div class=\"breachDate\"><strong>Breach Date:&nbsp;</strong>" +
+        arr[i].BreachDate +
+        "</div></div><hr>";
+        }
+    out += "</div>";
+document.getElementById("breachInfo").innerHTML = out;
+}
+function reloadMe() {
+window.location = window.location.pathname;
+}
+</script>
+<div>(This uses api of "<a href="https://haveibeenpwned.com/" target="_blank">https://haveibeenpwned.com</a>")
+</div>
+</body>
+</html>
